@@ -84,7 +84,7 @@ class ListSuratIzinPraktiks extends ListRecords
                     $query->where('status', 'ditolak')
                 ),
             'dibatalkan' => Tab::make('Dibatalkan')
-                ->badge($this->countSelesai)
+                ->badge($this->countDibatalkan)
                 ->badgeColor('danger')
                 ->modifyQueryUsing(
                     fn(Builder $query) =>
