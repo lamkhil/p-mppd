@@ -42,6 +42,9 @@ class SuratIzinPraktikTable
 
                         return (int) round(($uploaded / $total) * 100);
                     })
+                    ->dangerLabel('Belum Ada Upload') // < 50%
+                    ->warningLabel('Sebagian Terupload') // 50% - 99%
+                    ->successLabel('Selesai Terupload') // 100%
                     ->lowThreshold(50) // < 50% = warning
                     ->dangerColor('rgb(239, 68, 68)')   // merah
                     ->warningColor('rgb(245, 158, 11)') // kuning
