@@ -25,9 +25,9 @@ class SuratIzinPraktikTable
                     ->sortable(),
                 ProgressBarColumn::make('upload_progress')
                     ->label('Progress Upload')
+                    ->maxValue(100)
                     ->getStateUsing(function ($record) {
                         $total = collect($record->kebutuhan_upload ?? [])->count();
-
                         if ($total === 0) {
                             return 0;
                         }
@@ -40,14 +40,12 @@ class SuratIzinPraktikTable
                             )
                             ->count();
 
-                        return round(($uploaded / $total) * 100);
+                        return (int) round(($uploaded / $total) * 100);
                     })
-                    ->colors([
-                        'danger'  => 0,
-                        'warning' => 50,
-                        'success' => 100,
-                    ])
-                    ->showPercentage(),
+                    ->lowThreshold(50) // < 50% = warning
+                    ->dangerColor('rgb(239, 68, 68)')   // merah
+                    ->warningColor('rgb(245, 158, 11)') // kuning
+                    ->successColor('rgb(34, 197, 94)'), // hijau
 
                 TextColumn::make('nik')
                     ->label('NIK')
