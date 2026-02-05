@@ -8,13 +8,14 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Tapp\FilamentProgressBarColumn\Tables\Columns\ProgressBarColumn;
 
 class SuratIzinPraktikTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-        ->defaultSort('created_at')
+            ->defaultSort('created_at')
             ->columns([
                 TextColumn::make('nomor_register')
                     ->searchable(),
@@ -22,6 +23,32 @@ class SuratIzinPraktikTable
                     ->label('Dibuat Tgl')
                     ->dateTime()
                     ->sortable(),
+                ProgressBarColumn::make('upload_progress')
+                    ->label('Progress Upload')
+                    ->getStateUsing(function ($record) {
+                        $total = collect($record->kebutuhan_upload ?? [])->count();
+
+                        if ($total === 0) {
+                            return 0;
+                        }
+
+                        $uploaded = collect($record->document_upload ?? [])
+                            ->filter(
+                                fn($doc) =>
+                                filled($doc['value'] ?? null) ||
+                                    filled($doc['file'] ?? null)
+                            )
+                            ->count();
+
+                        return round(($uploaded / $total) * 100);
+                    })
+                    ->colors([
+                        'danger'  => 0,
+                        'warning' => 50,
+                        'success' => 100,
+                    ])
+                    ->showPercentage(),
+
                 TextColumn::make('nik')
                     ->label('NIK')
                     ->searchable(),

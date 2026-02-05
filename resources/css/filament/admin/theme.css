@@ -3,4 +3,5 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../vendor/diogogpinto/filament-auth-ui-enhancer/resources/**/*.blade.php';
+@source '../../../../vendor/tapp/filament-progress-bar-column';
 @import '../../../../vendor/pxlrbt/filament-activity-log/resources/css/styles.css';
