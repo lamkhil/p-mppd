@@ -19,6 +19,11 @@ class ListSuratIzinPraktiks extends ListRecords
     public int $countDitolak = 0;
     public int $countDibatalkan = 0;
 
+    public function mount(): void
+    {
+        parent::mount();
+    }
+
     public function getCounts()
     {
         $model = static::getResource()::getModel();
@@ -40,7 +45,6 @@ class ListSuratIzinPraktiks extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        $this->getCounts();
         
         return [
             ImportAction::make()
@@ -51,6 +55,7 @@ class ListSuratIzinPraktiks extends ListRecords
 
     public function getTabs(): array
     {
+        $this->getCounts();
         return [
             'masuk' => Tab::make('Masuk')
                 ->badge($this->countMasuk)
