@@ -2,6 +2,10 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\RecentSuratIzinPraktik;
+use App\Filament\Widgets\StatOverViewSuratIzinPraktik;
+use App\Filament\Widgets\SuratIzinPraktikPie;
+use App\Filament\Widgets\SuratIzinPraktikTrend;
 use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -43,6 +47,9 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+                StatOverViewSuratIzinPraktik::class,
+                SuratIzinPraktikTrend::class,
+                SuratIzinPraktikPie::class
             ])
             ->middleware([
                 EncryptCookies::class,

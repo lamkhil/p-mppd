@@ -19,9 +19,8 @@ class ListSuratIzinPraktiks extends ListRecords
     public int $countDitolak = 0;
     public int $countDibatalkan = 0;
 
-    public function mount(): void
+    public function getCounts()
     {
-
         $model = static::getResource()::getModel();
 
         $counts = $model::selectRaw("
@@ -37,11 +36,12 @@ class ListSuratIzinPraktiks extends ListRecords
         $this->countSelesai = $counts['selesai'] ?? 0;
         $this->countDitolak = $counts['ditolak'] ?? 0;
         $this->countDibatalkan = $counts['dibatalkan'] ?? 0;
-        parent::mount();
     }
 
     protected function getHeaderActions(): array
     {
+        $this->getCounts();
+        
         return [
             ImportAction::make()
                 ->label('Import .CSV')
