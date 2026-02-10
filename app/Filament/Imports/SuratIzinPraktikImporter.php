@@ -47,11 +47,14 @@ class SuratIzinPraktikImporter extends Importer
         ];
     }
 
-    public function resolveRecord(): SuratIzinPraktik
+    public function resolveRecord(): ?SuratIzinPraktik
     {
-        return SuratIzinPraktik::firstOrNew([
-            'nomor_register' => $this->data['nomor_register'],
-        ]);
+        $record = SuratIzinPraktik::where('nomor_register', $this->data['nomor_register'])->exists()
+            ? null
+            : new SuratIzinPraktik([
+                'nomor_register' => $this->data['nomor_register'],
+            ]);
+        return $record;
     }
 
     public static function getCompletedNotificationBody(Import $import): string
