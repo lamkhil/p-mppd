@@ -9,11 +9,27 @@ class SuratIzinPraktikPie extends ChartWidget
 {
     protected ?string $heading = 'Distribusi Status SIP';
 
+    protected ?string $description = 'Komposisi berkas berdasarkan status terkini.';
+
+    protected int|string|array $columnSpan = 1;
+
+    protected ?string $maxHeight = '320px';
+
     protected function getData(): array
     {
-        $statuses = ['masuk', 'proses', 'selesai', 'ditolak', 'dibatalkan'];
+        $statuses = ['masuk', 'proses', 'menunggu_verifikasi_teknis', 'selesai', 'terverifikasi_teknis', 'ditolak_teknis', 'ditolak', 'dibatalkan'];
 
-        // Ambil count per status
+        $labels = [
+            'masuk' => 'Masuk',
+            'proses' => 'Proses',
+            'menunggu_verifikasi_teknis' => 'Menunggu Verifikasi Teknis',
+            'selesai' => 'Selesai',
+            'terverifikasi_teknis' => 'Terverifikasi Teknis',
+            'ditolak_teknis' => 'Ditolak Teknis',
+            'ditolak' => 'Ditolak',
+            'dibatalkan' => 'Dibatalkan',
+        ];
+
         $counts = DB::table('surat_izin_praktik')
             ->whereIn('status', $statuses)
             ->select('status', DB::raw('COUNT(*) as total'))
@@ -21,22 +37,26 @@ class SuratIzinPraktikPie extends ChartWidget
             ->pluck('total', 'status')
             ->toArray();
 
-        // Pastikan semua status ada, jika belum ada set 0
         $counts = array_merge(array_fill_keys($statuses, 0), $counts);
 
         return [
-            'labels' => array_map(fn($s) => ucfirst($s), $statuses),
+            'labels' => array_map(fn ($s) => $labels[$s], $statuses),
             'datasets' => [
                 [
                     'data' => array_values($counts),
                     'backgroundColor' => [
-                        '#facc15', // masuk - kuning
-                        '#3b82f6', // proses - biru
-                        '#22c55e', // selesai - hijau
-                        '#ef4444', // ditolak - merah
-                        '#9ca3af', // dibatalkan - abu
+                        '#facc15', // masuk
+                        '#3b82f6', // proses
+                        '#8b5cf6', // menunggu_verifikasi_teknis
+                        '#22c55e', // selesai
+                        '#14b8a6', // terverifikasi_teknis
+                        '#f97316', // ditolak_teknis
+                        '#ef4444', // ditolak
+                        '#9ca3af', // dibatalkan
                     ],
-                    'hoverOffset' => 4,
+                    'borderColor' => 'rgba(255,255,255,0.85)',
+                    'borderWidth' => 2,
+                    'hoverOffset' => 6,
                 ],
             ],
         ];
@@ -44,6 +64,22 @@ class SuratIzinPraktikPie extends ChartWidget
 
     protected function getType(): string
     {
-        return 'pie';
+        return 'doughnut';
+    }
+
+    protected function getOptions(): array
+    {
+        return [
+            'cutout' => '60%',
+            'plugins' => [
+                'legend' => [
+                    'position' => 'right',
+                    'labels' => [
+                        'usePointStyle' => true,
+                        'boxWidth' => 8,
+                    ],
+                ],
+            ],
+        ];
     }
 }

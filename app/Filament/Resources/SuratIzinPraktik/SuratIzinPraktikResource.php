@@ -16,18 +16,42 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SuratIzinPraktikResource extends Resource
 {
     protected static ?string $model = SuratIzinPraktik::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    protected static ?string $slug = 'sip';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::DocumentText;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Perizinan';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $slug = 'sip';
 
     public static function getPluralModelLabel(): string
     {
-        return "Surat Izin Praktik";
+        return 'Surat Izin Praktik';
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = SuratIzinPraktik::whereIn('status', ['masuk', 'proses'])->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Berkas masuk & sedang diproses';
     }
 
     protected static ?string $recordTitleAttribute = 'nomor_register';
@@ -61,7 +85,7 @@ class SuratIzinPraktikResource extends Resource
             'create' => CreateSuratIzinPraktik::route('/create'),
             'view' => ViewSuratIzinPraktik::route('/{record}'),
             'edit' => EditSuratIzinPraktik::route('/{record}/edit'),
-            'activities' =>  ListSuratIzinPraktiksActivities::route('/{record}/activities')
+            'activities' => ListSuratIzinPraktiksActivities::route('/{record}/activities'),
         ];
     }
 }

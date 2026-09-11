@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\SuratIzinPraktik\Schemas;
 
+use App\Services\Ssw\SswMppdService;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -101,17 +103,90 @@ class SuratIzinPraktikInfolist
                     ]),
 
                 /* ===============================
+             * INTEGRASI SSW
+             * =============================== */
+                Section::make('Integrasi SSW')
+                    ->columns(2)
+                    ->visible(fn () => config('ssw.enabled'))
+                    ->schema([
+                        IconEntry::make('ssw_dikirim_pada')
+                            ->label('Status Sinkronisasi')
+                            ->boolean()
+                            ->trueIcon('heroicon-o-check-circle')
+                            ->falseIcon('heroicon-o-minus-circle')
+                            ->tooltip(fn ($record) => $record->sudahTerkirimKeSsw() ? 'Sudah terkirim ke SSW' : 'Belum terkirim ke SSW'),
+
+                        TextEntry::make('ssw_dikirim_pada')
+                            ->label('Dikirim Pada')
+                            ->dateTime('d M Y H:i')
+                            ->placeholder('Belum dikirim'),
+
+                        TextEntry::make('id_ijin')
+                            ->label('Jenis Izin SSW')
+                            ->placeholder('-')
+                            // Nama izin diambil dari cache master izin; kalau SSW
+                            // tidak terjangkau, tampilkan id-nya apa adanya.
+                            ->formatStateUsing(
+                                fn ($state) => app(SswMppdService::class)->opsiIzinAman()[(int) $state] ?? $state
+                            ),
+
+                        TextEntry::make('jenis_permohonan')
+                            ->label('Jenis Permohonan')
+                            ->placeholder('-'),
+
+                        TextEntry::make('ssw_id_permohonan_det')
+                            ->label('ID Permohonan SSW')
+                            ->placeholder('-')
+                            ->copyable(),
+
+                        TextEntry::make('ssw_id_dinkes_mppd_det')
+                            ->label('ID Dinkes MPPD')
+                            ->placeholder('-'),
+
+                        TextEntry::make('ssw_hasil_verifikasi')
+                            ->label('Hasil Verifikasi Teknis')
+                            ->badge()
+                            ->placeholder('Menunggu keputusan')
+                            ->formatStateUsing(fn ($state) => match ($state) {
+                                'disetujui' => 'Disetujui',
+                                'ditolak' => 'Ditolak',
+                                default => $state,
+                            })
+                            ->color(fn ($state) => $state === 'disetujui' ? 'success' : 'danger'),
+
+                        TextEntry::make('ssw_diverifikasi_pada')
+                            ->label('Diverifikasi Pada')
+                            ->dateTime('d M Y H:i')
+                            ->placeholder('-'),
+
+                        TextEntry::make('ssw_verifikator')
+                            ->label('Verifikator')
+                            ->placeholder('-'),
+
+                        TextEntry::make('ssw_catatan_verifikasi')
+                            ->label('Catatan Dinas Teknis')
+                            ->placeholder('-')
+                            ->columnSpanFull(),
+
+                        TextEntry::make('ssw_error')
+                            ->label('Kegagalan Terakhir')
+                            ->color('danger')
+                            ->visible(fn ($record) => filled($record->ssw_error))
+                            ->columnSpanFull(),
+                    ]),
+
+                /* ===============================
              * KEBUTUHAN UPLOAD
              * =============================== */
                 Section::make('Kebutuhan Upload')
-                    ->visible(fn($record) => !empty($record->kebutuhan_upload))
+                    ->visible(fn ($record) => ! empty($record->kebutuhan_upload))
                     ->columnSpanFull()
                     ->schema([
                         TextEntry::make('link')
                             ->label('Link Form')
                             ->default(function ($record) {
                                 return route('sip.upload', [
-                                    'record' => $record
+                                    'record' => $record,
                                 ]);
                             }),
                         RepeatableEntry::make('kebutuhan_upload')
@@ -122,12 +197,12 @@ class SuratIzinPraktikInfolist
 
                                 TextEntry::make('type')
                                     ->label('Tipe')
-                                    ->formatStateUsing(fn($state) => match ($state) {
-                                        'text'  => 'Teks',
-                                        'date'  => 'Tanggal',
-                                        'pdf'   => 'PDF',
+                                    ->formatStateUsing(fn ($state) => match ($state) {
+                                        'text' => 'Teks',
+                                        'date' => 'Tanggal',
+                                        'pdf' => 'PDF',
                                         'image' => 'Gambar',
-                                        'file'  => 'File Lainnya',
+                                        'file' => 'File Lainnya',
                                         default => $state,
                                     }),
 
@@ -142,7 +217,7 @@ class SuratIzinPraktikInfolist
              * DOKUMEN TERUNGGAH
              * =============================== */
                 Section::make('Dokumen Terunggah')
-                    ->visible(fn($record) => !empty($record->document_upload))
+                    ->visible(fn ($record) => ! empty($record->document_upload))
                     ->columnSpanFull()
                     ->schema([
                         RepeatableEntry::make('document_upload')
@@ -153,31 +228,29 @@ class SuratIzinPraktikInfolist
 
                                 TextEntry::make('type')
                                     ->label('Tipe')
-                                    ->formatStateUsing(fn($state) => match ($state) {
-                                        'text'  => 'Teks',
-                                        'date'  => 'Tanggal',
-                                        'pdf'   => 'PDF',
+                                    ->formatStateUsing(fn ($state) => match ($state) {
+                                        'text' => 'Teks',
+                                        'date' => 'Tanggal',
+                                        'pdf' => 'PDF',
                                         'image' => 'Gambar',
-                                        'file'  => 'File Lainnya',
+                                        'file' => 'File Lainnya',
                                         default => $state,
                                     }),
 
                                 TextEntry::make('value')
                                     ->label('Isi')
                                     ->visible(
-                                        fn($state, $record) =>
-                                        in_array($record['type'] ?? null, ['text', 'date'])
+                                        fn ($state, $record) => in_array($record['type'] ?? null, ['text', 'date'])
                                     )
                                     ->columnSpanFull(),
 
                                 TextEntry::make('file')
                                     ->label('File')
-                                    ->url(fn($state) => $state ? Storage::url($state) : null)
+                                    ->url(fn ($state) => $state ? Storage::url($state) : null)
                                     ->openUrlInNewTab()
                                     ->color('info')
                                     ->visible(
-                                        fn($state, $record) =>
-                                        !in_array($record['type'] ?? null, ['text', 'date'])
+                                        fn ($state, $record) => ! in_array($record['type'] ?? null, ['text', 'date'])
                                     ),
 
                                 TextEntry::make('uploaded_at')
