@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Spesifikasi Teknis Webhook P-MPPD – SSW</title>
+<style>
+  @page { size: A4; margin: 0; }
+  :root {
+    --blue: #1B44B0;
+    --blue-head: #2F5597;
+    --blue-sub: #2E75B6;
+    --teal: #2BB5B0;
+    --orange: #E8925A;
+    --grey: #C9CCD1;
+    --ink: #1A1A1A;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Liberation Sans", "Noto Sans", Arial, sans-serif;
+    font-size: 10pt; line-height: 1.38; color: var(--ink);
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .page {
+    width: 210mm; height: 297mm; position: relative; overflow: hidden;
+    padding: 22mm 22mm 28mm 24mm;
+    break-after: page; page-break-after: always;
+    background: #fff;
+  }
+  .page:last-child { break-after: auto; page-break-after: auto; }
+
+  /* ---- footer banner ---- */
+  .foot {
+    position: absolute; left: 24mm; right: 22mm; bottom: 12mm;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .banner {
+    position: relative; height: 9mm; width: 72mm; background: var(--blue);
+    color: #fff; font-size: 8.5pt; font-weight: 700; letter-spacing: 0.06em;
+    display: flex; align-items: center; padding-left: 14mm; overflow: hidden;
+  }
+  .banner::before {
+    content: ""; position: absolute; left: 4mm; top: 3.2mm; width: 7mm; height: 2.6mm;
+    background-image: radial-gradient(#9FB6E8 0.45mm, transparent 0.5mm);
+    background-size: 1.1mm 1.1mm;
+  }
+  .banner::after {
+    content: ""; position: absolute; right: -4mm; top: 0; width: 16mm; height: 100%;
+    background: var(--orange); transform: skewX(-28deg);
+  }
+  .pageno { font-size: 10pt; letter-spacing: 0.25em; border-top: 0.6pt solid #888; padding-top: 2mm; width: 70mm; text-align: right; }
+
+  /* ---- headings ---- */
+  h1.sec { color: var(--blue-head); font-size: 13pt; font-weight: 700; margin: 0 0 8pt; display: grid; grid-template-columns: 11mm 1fr; }
+  h1.sec + h1.sec { margin-top: 0; }
+  h2.sub { color: var(--blue-sub); font-size: 12pt; font-weight: 400; margin: 14pt 0 8pt 6mm; display: grid; grid-template-columns: 11mm 1fr; }
+  h2.sub:first-child { margin-top: 0; }
+  p { margin: 0 0 8pt 6mm; text-align: justify; }
+  p.indent { text-indent: 6mm; }
+  ul, ol { margin: 0 0 8pt 6mm; padding-left: 5mm; }
+  li { margin-bottom: 2pt; }
+  .sec-block { margin-bottom: 10pt; }
+  .sec-block h1.sec ~ p, .sec-block h1.sec ~ ul, .sec-block h1.sec ~ ol { margin-left: 11mm; }
+  .note { margin: 6pt 0 0 6mm; font-size: 9.5pt; color: #333; }
+  code { font-family: "Liberation Mono", "DejaVu Sans Mono", monospace; font-size: 9pt; }
+
+  /* ---- spec tables (SSW style) ---- */
+  table.spec { border-collapse: collapse; width: 100%; margin: 0 0 10pt; font-size: 9.5pt; }
+  table.spec td, table.spec th { border: 0.75pt solid #000; padding: 2.5pt 5pt; vertical-align: top; }
+  table.spec td.k { width: 34mm; font-weight: 700; font-style: italic; }
+  table.spec th { font-weight: 400; text-align: left; }
+  table.spec pre {
+    margin: 0; font-family: "Liberation Sans", "Noto Sans", Arial, sans-serif; font-size: 9.5pt;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  table.spec table.inner { border-collapse: collapse; width: 100%; margin: 0; }
+  table.spec table.inner td, table.spec table.inner th { border: 0.75pt solid #000; }
+  table.spec table.inner tr > *:first-child { border-left: none; }
+  table.spec table.inner tr > *:last-child { border-right: none; }
+  table.spec table.inner tr:first-child > * { border-top: none; }
+  table.spec table.inner tr:last-child > * { border-bottom: none; }
+  table.inner th { background: #F2F2F2; }
+  .req { font-size: 8.5pt; font-weight: 700; }
+
+  table.plain { border-collapse: collapse; width: calc(100% - 6mm); margin: 0 0 10pt 6mm; font-size: 9.5pt; }
+  table.plain td, table.plain th { border: 0.75pt solid #000; padding: 3pt 5pt; vertical-align: top; text-align: left; }
+  table.plain th { background: #F2F2F2; font-weight: 700; }
+
+  /* ---- daftar isi ---- */
+  .toc-title { font-size: 14pt; font-weight: 700; margin: 0 0 12pt; }
+  .toc { list-style: none; padding: 0; margin: 0; font-size: 10pt; }
+  .toc li { display: flex; align-items: baseline; gap: 4pt; margin-bottom: 3pt; }
+  .toc li.l2 { padding-left: 6mm; }
+  .toc .dots { flex: 1; border-bottom: 1pt dotted #555; transform: translateY(-3pt); }
+
+  /* ---- cover ---- */
+  .cover { padding: 0; }
+  .cover svg.deco { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .cover .tag { position: absolute; top: 14mm; right: 12mm; display: flex; align-items: center; gap: 4mm; font-weight: 700; font-size: 13pt; letter-spacing: 0.12em; }
+  .cover .tag i { width: 7mm; height: 7mm; border-radius: 50%; background: var(--blue); display: block; }
+  .cover .title { position: absolute; left: 24mm; top: 112mm; }
+  .cover .title .t1 { color: var(--blue); font-size: 44pt; font-weight: 700; letter-spacing: 0.06em; line-height: 1; }
+  .cover .title .t2 { color: var(--teal); font-size: 30pt; font-weight: 700; letter-spacing: 0.06em; line-height: 1.15; margin-top: 4pt; }
+  .cover .title .t3 { color: #444; font-size: 11pt; letter-spacing: 0.1em; margin-top: 10pt; }
+  .cover .org { position: absolute; left: 10mm; bottom: 58mm; color: var(--blue); font-weight: 700; font-size: 13pt; line-height: 1.2; max-width: 120mm; }
+</style>
+</head>
+<body>
+
+<!-- ================= COVER ================= -->
+<section class="page cover">
+  <svg class="deco" viewBox="0 0 210 297" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="dots-o" width="2.4" height="2.4" patternUnits="userSpaceOnUse"><circle cx="1.2" cy="1.2" r="0.7" fill="#E8925A"/></pattern>
+      <pattern id="dots-b" width="3.2" height="3.2" patternUnits="userSpaceOnUse"><circle cx="1.6" cy="1.6" r="1.1" fill="#1B44B0"/></pattern>
+      <pattern id="hatch-g" width="2" height="2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="0.8" height="2" fill="#C9CCD1"/></pattern>
+      <pattern id="hatch-o" width="2" height="2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="0.8" height="2" fill="#E8925A"/></pattern>
+      <pattern id="hatch-b" width="2" height="2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="0.8" height="2" fill="#1B44B0"/></pattern>
+    </defs>
+    <!-- top-left blob -->
+    <path d="M0 0 H82 C78 14 64 22 58 34 C50 50 34 46 20 62 C12 72 8 78 0 84 Z" fill="#1B44B0"/>
+    <!-- bottom-right blob -->
+    <path d="M210 297 V160 C196 178 178 176 164 192 C152 206 150 226 140 240 C130 256 116 262 108 297 Z" fill="#1B44B0"/>
+    <!-- circles -->
+    <circle cx="52" cy="44" r="17" fill="url(#hatch-g)"/>
+    <circle cx="22" cy="72" r="15" fill="url(#hatch-o)"/>
+    <circle cx="150" cy="176" r="15" fill="url(#hatch-g)"/>
+    <!-- dot fields -->
+    <rect x="60" y="14" width="24" height="9" fill="url(#dots-o)"/>
+    <rect x="132" y="278" width="46" height="13" fill="url(#dots-b)"/>
+    <!-- bottom-left corner -->
+    <rect x="0" y="278" width="24" height="19" fill="#E8925A"/>
+    <rect x="0" y="262" width="26" height="18" fill="url(#hatch-b)"/>
+    <rect x="86" y="274" width="18" height="18" fill="url(#hatch-o)"/>
+    <rect x="200" y="250" width="10" height="20" fill="url(#hatch-g)"/>
+  </svg>
+  <div class="tag"><i></i>DOKUMEN SPESIFIKASI</div>
+  <div class="title">
+    <div class="t1">WEBHOOK</div>
+    <div class="t2">VERIFIKASI TEKNIS<br>P-MPPD – SSW</div>
+    <div class="t3">VERSI 1.0 · 14 SEPTEMBER 2026</div>
+  </div>
+  <div class="org">DINAS PENANAMAN MODAL DAN<br>PELAYANAN TERPADU SATU PINTU<br>KOTA SURABAYA</div>
+</section>
+
+<!-- ================= DAFTAR ISI ================= -->
+<section class="page">
+  <div class="toc-title">DAFTAR ISI</div>
+  <ul class="toc">
+    <li>I. PENDAHULUAN<span class="dots"></span>3</li>
+    <li>II. OTENTIKASI<span class="dots"></span>3</li>
+    <li>III. ALUR INTEGRASI<span class="dots"></span>3</li>
+    <li>IV. SPESIFIKASI<span class="dots"></span>4</li>
+    <li class="l2">4.1. Login<span class="dots"></span>4</li>
+    <li class="l2">4.2. Cek Token<span class="dots"></span>4</li>
+    <li class="l2">4.3. Logout<span class="dots"></span>4</li>
+    <li class="l2">4.4. Callback Verifikasi Teknis<span class="dots"></span>5</li>
+    <li class="l2">4.5. Kode Error<span class="dots"></span>7</li>
+    <li>V. IDEMPOTENSI<span class="dots"></span>7</li>
+    <li>VI. EFEK DI P-MPPD<span class="dots"></span>8</li>
+    <li>VII. CONTOH PEMANGGILAN (cURL)<span class="dots"></span>8</li>
+    <li>VIII. HAL YANG PERLU DISEPAKATI<span class="dots"></span>8</li>
+  </ul>
+  <div class="foot"><div class="banner">WEBHOOK P-MPPD – SSW</div><div class="pageno">2 | Halaman</div></div>
+</section>
+
+<!-- ================= HAL 3 ================= -->
+<section class="page">
+  <div class="sec-block">
+    <h1 class="sec"><span>I.</span><span>PENDAHULUAN</span></h1>
+    <p class="indent">Dokumen ini adalah pasangan dari <em>Spesifikasi Teknis Web Service SSW – MPPD</em>. Jika dokumen tersebut menjelaskan cara P-MPPD mengirim data permohonan ke SSW (<code>POST /integrasi/ssw-mppd</code>), dokumen ini menjelaskan arah sebaliknya: cara SSW mengirim <strong>hasil verifikasi teknis</strong> (disetujui / ditolak) kembali ke P-MPPD setelah dinas teknis memutuskan.</p>
+    <p class="indent">P-MPPD (Pelayanan MPP Digital) adalah aplikasi milik Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu Kota Surabaya untuk mengelola permohonan Surat Izin Praktik (SIP) tenaga kesehatan. Seluruh endpoint bersifat RESTful, memakai format JSON, dan stateless (tanpa sesi, tanpa CSRF).</p>
+    <table class="plain">
+      <tr><th style="width:34mm">Base URL</th><td><code>https://pmppd.dpmptsp-surabaya.my.id/api</code></td></tr>
+      <tr><th>Format</th><td>JSON, UTF-8 — header <code>Content-Type: application/json</code> dan <code>Accept: application/json</code></td></tr>
+      <tr><th>Zona waktu</th><td>Asia/Jakarta (WIB, UTC+7)</td></tr>
+    </table>
+  </div>
+
+  <div class="sec-block">
+    <h1 class="sec"><span>II.</span><span>OTENTIKASI</span></h1>
+    <p class="indent">Metode otentikasi memakai <strong>Laravel Sanctum</strong>, sama dengan yang dipakai SSW. SSW login dengan <strong>akun sistem P-MPPD</strong> yang disediakan DPMPTSP, menerima <code>token</code>, lalu memakainya sebagai <strong>Bearer Token</strong> pada endpoint callback. Token tidak memiliki masa berlaku — cukup login sekali, simpan, dan pakai ulang. Bila menerima respons <code>401</code>, login ulang sekali lalu ulangi request.</p>
+  </div>
+
+  <div class="sec-block">
+    <h1 class="sec"><span>III.</span><span>ALUR INTEGRASI</span></h1>
+    <table class="plain">
+      <tr><th style="width:10mm">No</th><th style="width:34mm">Arah</th><th>Langkah</th></tr>
+      <tr><td>1</td><td>P-MPPD → SSW</td><td><code>POST /integrasi/ssw-mppd</code> (id_layanan 36). Payload memuat <code>nomor_register</code>.</td></tr>
+      <tr><td>2</td><td>SSW → P-MPPD</td><td>Respons insert memuat <code>id_t_permohonan_det</code>; P-MPPD menyimpannya pada berkas.</td></tr>
+      <tr><td>3</td><td>—</td><td>Berkas menunggu keputusan dinas teknis di sisi SSW.</td></tr>
+      <tr><td>4</td><td>SSW → P-MPPD</td><td><code>POST /api/login</code> dengan akun sistem → Bearer token (sekali, disimpan).</td></tr>
+      <tr><td>5</td><td>SSW → P-MPPD</td><td><code>POST /api/ssw/callback</code> + Bearer → keputusan <em>disetujui</em> / <em>ditolak</em>.</td></tr>
+    </table>
+    <p>Kunci yang dikenal kedua sisi:</p>
+    <table class="plain">
+      <tr><th style="width:44mm">Kunci</th><th style="width:52mm">Asal</th><th>Dipakai untuk</th></tr>
+      <tr><td><code>nomor_register</code></td><td>Dikirim P-MPPD di payload MPPD</td><td><strong>Wajib</strong> di callback — mengenali berkas</td></tr>
+      <tr><td><code>id_t_permohonan_det</code></td><td>Dikembalikan SSW saat insert MPPD</td><td>Opsional di callback — pengaman agar callback tidak nyasar ke berkas lain</td></tr>
+    </table>
+  </div>
+  <div class="foot"><div class="banner">WEBHOOK P-MPPD – SSW</div><div class="pageno">3 | Halaman</div></div>
+</section>
+
+<!-- ================= HAL 4 ================= -->
+<section class="page">
+  <h1 class="sec"><span>IV.</span><span>SPESIFIKASI</span></h1>
+
+  <h2 class="sub"><span>4.1.</span><span>Login</span></h2>
+  <table class="spec">
+    <tr><td class="k">URL</td><td>https://pmppd.dpmptsp-surabaya.my.id/api/login</td></tr>
+    <tr><td class="k">METHOD</td><td>POST</td></tr>
+    <tr><td class="k">RATE LIMIT</td><td>10 request / menit per IP</td></tr>
+    <tr><td class="k">BODY (RAW/JSON)</td><td style="padding:0">
+      <table class="inner">
+        <tr><th style="width:38mm">Parameter</th><th style="width:22mm">Data Type</th><th style="width:16mm">Wajib</th><th>Keterangan</th></tr>
+        <tr><td>email</td><td>String</td><td class="req">Ya</td><td>Email akun sistem. <code>username</code> diterima sebagai alias.</td></tr>
+        <tr><td>password</td><td>String</td><td class="req">Ya</td><td></td></tr>
+        <tr><td>device_name</td><td>String</td><td>Tidak</td><td>Nama token, memudahkan pencabutan per konsumen. Default <code>api-&lt;ip&gt;</code>.</td></tr>
+      </table>
+    </td></tr>
+    <tr><td class="k">RESPONSE</td><td></td></tr>
+    <tr><td colspan="2"><pre>{
+    "success": true,
+    "token": "12|Kq8fT3xWm9pLc1ZvB0nHq7Rd2sYe4Ua6Jg8Kx0Mc1Z",
+    "token_name": "ssw-produksi",
+    "expired": null,
+    "user": { "id": 3, "name": "Integrasi SSW", "email": "ssw-integrasi@dpmptsp.surabaya.go.id" }
+}</pre></td></tr>
+  </table>
+  <p class="note">Kredensial salah dijawab <code>422 { "message": "Kredensial tidak cocok.", "errors": { "email": ["Kredensial tidak cocok."] } }</code>.</p>
+
+  <h2 class="sub"><span>4.2.</span><span>Cek Token</span></h2>
+  <table class="spec">
+    <tr><td class="k">URL</td><td>https://pmppd.dpmptsp-surabaya.my.id/api/me</td></tr>
+    <tr><td class="k">METHOD</td><td>GET</td></tr>
+    <tr><td class="k">AUTH</td><td>Bearer Token</td></tr>
+    <tr><td class="k">RESPONSE</td><td></td></tr>
+    <tr><td colspan="2"><pre>{ "success": true, "data": { "id": 3, "name": "Integrasi SSW", "email": "ssw-integrasi@dpmptsp.surabaya.go.id" } }</pre></td></tr>
+  </table>
+  <p class="note">Respons <code>401 { "message": "Unauthenticated." }</code> berarti token tidak valid atau sudah dicabut.</p>
+
+  <h2 class="sub"><span>4.3.</span><span>Logout</span></h2>
+  <table class="spec">
+    <tr><td class="k">URL</td><td>https://pmppd.dpmptsp-surabaya.my.id/api/logout</td></tr>
+    <tr><td class="k">METHOD</td><td>POST</td></tr>
+    <tr><td class="k">AUTH</td><td>Bearer Token</td></tr>
+    <tr><td class="k">RESPONSE</td><td></td></tr>
+    <tr><td colspan="2"><pre>{ "success": true, "message": "Token dicabut." }</pre></td></tr>
+  </table>
+  <div class="foot"><div class="banner">WEBHOOK P-MPPD – SSW</div><div class="pageno">4 | Halaman</div></div>
+</section>
+
+<!-- ================= HAL 5 ================= -->
+<section class="page">
+  <h2 class="sub"><span>4.4.</span><span>Callback Verifikasi Teknis</span></h2>
+  <p>Mengirim keputusan verifikasi teknis untuk <strong>satu</strong> berkas. Field yang tidak tercantum di tabel <strong>diabaikan</strong> (tidak menyebabkan error).</p>
+  <table class="spec">
+    <tr><td class="k">URL</td><td>https://pmppd.dpmptsp-surabaya.my.id/api/ssw/callback</td></tr>
+    <tr><td class="k">METHOD</td><td>POST</td></tr>
+    <tr><td class="k">AUTH</td><td>Bearer Token</td></tr>
+    <tr><td class="k">RATE LIMIT</td><td>60 request / menit per token</td></tr>
+    <tr><td class="k">BODY (RAW/JSON)</td><td style="padding:0">
+      <table class="inner">
+        <tr><th style="width:38mm">Parameter</th><th style="width:22mm">Data Type</th><th style="width:20mm">Wajib</th><th>Keterangan</th></tr>
+        <tr><td>nomor_register</td><td>String</td><td class="req">Ya</td><td>Nomor register SIP, persis seperti yang dikirim P-MPPD di payload MPPD.</td></tr>
+        <tr><td>status</td><td>String</td><td class="req">Ya</td><td>Keputusan, tidak peka huruf besar/kecil.<br><strong>Disetujui:</strong> <code>disetujui</code>, <code>setuju</code>, <code>diterima</code>, <code>approved</code>, <code>verified</code><br><strong>Ditolak:</strong> <code>ditolak</code>, <code>tolak</code>, <code>rejected</code></td></tr>
+        <tr><td>keterangan</td><td>String (≤2000)</td><td class="req">Ya, jika ditolak</td><td>Alasan / catatan verifikator. Ditampilkan ke petugas MPPD.</td></tr>
+        <tr><td>id_t_permohonan_det</td><td>Numeric / String</td><td>Tidak</td><td>ID permohonan dari SSW. Bila dikirim dan P-MPPD menyimpan nilainya, keduanya harus cocok (lihat <code>409</code>). Sangat disarankan diisi.</td></tr>
+        <tr><td>verifikator</td><td>String</td><td>Tidak</td><td>Nama petugas / dinas yang memutuskan.</td></tr>
+        <tr><td>tanggal_verifikasi</td><td>Date (Y-m-d) / Datetime (Y-m-d H:i:s)</td><td>Tidak</td><td>Kosong = waktu callback diterima.</td></tr>
+        <tr><td>event_id</td><td>String</td><td>Tidak</td><td>ID unik per kejadian dari sisi SSW; dipakai menolak callback ganda. Sangat disarankan diisi.</td></tr>
+        <tr><td>nomor_sip</td><td>String</td><td>Tidak</td><td>Hanya diproses bila disetujui.</td></tr>
+        <tr><td>tanggal_terbit_sip</td><td>Date (Y-m-d)</td><td>Tidak</td><td>Hanya diproses bila disetujui.</td></tr>
+        <tr><td>tanggal_akhir_sip</td><td>Date (Y-m-d)</td><td>Tidak</td><td>Hanya diproses bila disetujui; harus ≥ <code>tanggal_terbit_sip</code>.</td></tr>
+      </table>
+    </td></tr>
+  </table>
+  <div class="foot"><div class="banner">WEBHOOK P-MPPD – SSW</div><div class="pageno">5 | Halaman</div></div>
+</section>
+
+<!-- ================= HAL 6 ================= -->
+<section class="page">
+  <table class="spec">
+    <tr><td class="k">CONTOH BODY</td><td>Disetujui</td></tr>
+    <tr><td colspan="2"><pre>{
+    "nomor_register": "REG-2026-0012345",
+    "id_t_permohonan_det": 1234,
+    "status": "disetujui",
+    "verifikator": "Dinas Kesehatan Kota Surabaya",
+    "tanggal_verifikasi": "2026-09-14 10:32:00",
+    "keterangan": "Berkas lengkap dan sesuai.",
+    "event_id": "ssw-evt-7f3a9c",
+    "nomor_sip": "SIP-503.445/2026/DINKES",
+    "tanggal_terbit_sip": "2026-09-14",
+    "tanggal_akhir_sip": "2031-09-13"
+}</pre></td></tr>
+    <tr><td class="k">CONTOH BODY</td><td>Ditolak</td></tr>
+    <tr><td colspan="2"><pre>{
+    "nomor_register": "REG-2026-0012346",
+    "id_t_permohonan_det": 1235,
+    "status": "ditolak",
+    "verifikator": "Dinas Kesehatan Kota Surabaya",
+    "tanggal_verifikasi": "2026-09-14 11:05:00",
+    "keterangan": "STR sudah tidak berlaku, mohon diperbarui.",
+    "event_id": "ssw-evt-7f3a9d"
+}</pre></td></tr>
+    <tr><td class="k">RESPONSE</td><td>200 — diproses</td></tr>
+    <tr><td colspan="2"><pre>{
+    "success": true,
+    "message": "Status permohonan berhasil diperbarui.",
+    "data": {
+        "nomor_register": "REG-2026-0012345",
+        "status": "terverifikasi_teknis",
+        "duplikat": false,
+        "diproses_pada": "2026-09-14T10:32:05+07:00"
+    }
+}</pre></td></tr>
+    <tr><td class="k">RESPONSE</td><td>200 — duplikat (sudah pernah diproses, tidak ada perubahan)</td></tr>
+    <tr><td colspan="2"><pre>{
+    "success": true,
+    "message": "Callback sudah pernah diproses, tidak ada perubahan.",
+    "data": {
+        "nomor_register": "REG-2026-0012345",
+        "status": "terverifikasi_teknis",
+        "duplikat": true,
+        "diproses_pada": "2026-09-14T10:40:12+07:00"
+    }
+}</pre></td></tr>
+  </table>
+  <div class="foot"><div class="banner">WEBHOOK P-MPPD – SSW</div><div class="pageno">6 | Halaman</div></div>
+</section>
+
+<!-- ================= HAL 7 ================= -->
+<section class="page">
+  <table class="spec">
+    <tr><td class="k">RESPONSE</td><td>422 — payload tidak valid (contoh: ditolak tanpa keterangan)</td></tr>
+    <tr><td colspan="2"><pre>{
+    "success": false,
+    "message": "Payload tidak valid.",
+    "errors": {
+        "keterangan": ["Keterangan wajib diisi untuk permohonan yang ditolak."]
+    }
+}</pre></td></tr>
+  </table>
+  <h2 class="sub"><span>4.5.</span><span>Kode Error</span></h2>
+  <p>Selain <code>401</code> dan <code>429</code>, seluruh body error berbentuk <code>{ "success": false, "message": "…" }</code>.</p>
+  <table class="plain">
+    <tr><th style="width:14mm">HTTP</th><th style="width:60mm">Kapan</th><th>Pesan</th></tr>
+    <tr><td>401</td><td>Token tidak ada / tidak valid / sudah dicabut</td><td><code>{ "message": "Unauthenticated." }</code></td></tr>
+    <tr><td>403</td><td>IP atau akun tidak masuk daftar yang diizinkan</td><td>Alamat IP tidak diizinkan. / Akun ini tidak diizinkan mengirim callback.</td></tr>
+    <tr><td>404</td><td><code>nomor_register</code> tidak ditemukan</td><td>Permohonan dengan nomor register X tidak ditemukan.</td></tr>
+    <tr><td>409</td><td><code>id_t_permohonan_det</code> tidak cocok dengan yang tersimpan</td><td>id_t_permohonan_det tidak cocok untuk X (dikirim: …, tersimpan: …).</td></tr>
+    <tr><td>422</td><td>Payload tidak valid</td><td>Payload tidak valid. + rincian per field di <code>errors</code></td></tr>
+    <tr><td>429</td><td>Melebihi rate limit</td><td>Too Many Attempts.</td></tr>
+    <tr><td>503</td><td>Endpoint callback sedang dinonaktifkan oleh P-MPPD</td><td>Endpoint callback SSW sedang dinonaktifkan.</td></tr>
+  </table>
+  <p><strong>Anjuran retry di sisi SSW:</strong> ulangi hanya untuk <code>429</code>, <code>503</code>, <code>5xx</code>, dan kegagalan koneksi (dengan <em>backoff</em> eksponensial). Jangan ulangi <code>4xx</code> lainnya — perbaiki payload terlebih dahulu.</p>
+
+  <div class="sec-block" style="margin-top:16pt">
+    <h1 class="sec"><span>V.</span><span>IDEMPOTENSI</span></h1>
+    <p class="indent">Callback yang sama boleh dikirim lebih dari sekali. P-MPPD mengenali pengulangan dengan urutan berikut:</p>
+    <ol>
+      <li>Jika <code>event_id</code> dikirim dan sama dengan <code>event_id</code> yang terakhir diproses untuk berkas itu → duplikat.</li>
+      <li>Jika tidak ada <code>event_id</code>: bila status berkas sudah sama dengan hasil keputusan dan sudah pernah diverifikasi → duplikat.</li>
+    </ol>
+    <p>Duplikat dijawab <code>200</code> dengan <code>duplikat: true</code> dan <strong>tidak mengubah apa pun</strong>. Keputusan baru yang berbeda (misalnya <em>ditolak</em> setelah <em>disetujui</em>) <strong>akan diproses</strong> dan menimpa status sebelumnya — kirim hanya keputusan final.</p>
+  </div>
+
+  <div class="foot"><div class="banner">WEBHOOK P-MPPD – SSW</div><div class="pageno">7 | Halaman</div></div>
+</section>
+
+<!-- ================= HAL 8 ================= -->
+<section class="page">
+  <div class="sec-block">
+    <h1 class="sec"><span>VI.</span><span>EFEK DI P-MPPD</span></h1>
+    <table class="plain" style="margin-left:11mm;width:calc(100% - 11mm)">
+      <tr><th style="width:22mm">Keputusan</th><th style="width:62mm">Status berkas</th><th>Data yang disimpan</th></tr>
+      <tr><td>Disetujui</td><td><code>menunggu_verifikasi_teknis</code> → <code>terverifikasi_teknis</code></td><td>hasil, tgl verifikasi, keterangan, verifikator, event_id; + <code>nomor_sip</code>, <code>tanggal_terbit_sip</code>, <code>tanggal_akhir_sip</code> bila dikirim</td></tr>
+      <tr><td>Ditolak</td><td><code>menunggu_verifikasi_teknis</code> → <code>ditolak_teknis</code></td><td>hasil, tgl verifikasi, keterangan, verifikator, event_id</td></tr>
+    </table>
+    <p>Setiap callback yang diproses dicatat pada riwayat berkas (payload lengkap tersimpan).</p>
+  </div>
+  <div class="sec-block">
+    <h1 class="sec"><span>VII.</span><span>CONTOH PEMANGGILAN (cURL)</span></h1>
+    <table class="spec" style="margin-left:11mm;width:calc(100% - 11mm)">
+      <tr><td colspan="2"><pre style="font-family:'Liberation Mono','DejaVu Sans Mono',monospace;font-size:8pt;line-height:1.3">BASE=https://pmppd.dpmptsp-surabaya.my.id/api
+# 1) Login — simpan token
+TOKEN=$(curl -s -X POST "$BASE/login" \
+  -H "Content-Type: application/json" -H "Accept: application/json" \
+  -d '{"email":"ssw-integrasi@dpmptsp.surabaya.go.id","password":"********","device_name":"ssw-produksi"}' \
+  | jq -r .token)
+# 2) Kirim keputusan
+curl -s -X POST "$BASE/ssw/callback" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" -H "Accept: application/json" \
+  -d '{
+    "nomor_register": "REG-2026-0012345",
+    "id_t_permohonan_det": 1234,
+    "status": "disetujui",
+    "verifikator": "Dinas Kesehatan Kota Surabaya",
+    "tanggal_verifikasi": "2026-09-14 10:32:00",
+    "keterangan": "Berkas lengkap dan sesuai.",
+    "event_id": "ssw-evt-7f3a9c",
+    "nomor_sip": "SIP-503.445/2026/DINKES",
+    "tanggal_terbit_sip": "2026-09-14",
+    "tanggal_akhir_sip": "2031-09-13"
+  }'</pre></td></tr>
+    </table>
+  </div>
+
+  <div class="sec-block">
+    <h1 class="sec"><span>VIII.</span><span>HAL YANG PERLU DISEPAKATI</span></h1>
+    <p><strong>Dari tim SSW ke P-MPPD</strong></p>
+    <ul>
+      <li>Daftar IP publik server SSW yang akan memanggil callback (untuk <em>whitelist</em>).</li>
+      <li>Konfirmasi kosakata <code>status</code> yang dipakai SSW bila berbeda dari daftar di 4.4 — dapat ditambah tanpa perubahan kode.</li>
+      <li>Kepastian SSW mengirim <code>event_id</code> dan <code>id_t_permohonan_det</code> (sangat disarankan keduanya).</li>
+    </ul>
+    <p><strong>Dari P-MPPD ke tim SSW</strong></p>
+    <ul>
+      <li>Akun sistem (<code>email</code> + <code>password</code>) khusus integrasi — disampaikan lewat jalur aman, bukan lewat dokumen ini.</li>
+      <li>URL <em>staging</em> untuk uji coba sebelum produksi.</li>
+    </ul>
+    <p><strong>Kontak:</strong> Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu Kota Surabaya — tim pengembang P-MPPD.</p>
+  </div>
+  <div class="foot"><div class="banner">WEBHOOK P-MPPD – SSW</div><div class="pageno">8 | Halaman</div></div>
+</section>
+
+</body>
+</html>
